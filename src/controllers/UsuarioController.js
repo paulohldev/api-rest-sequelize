@@ -12,10 +12,85 @@ class UsuarioController {
 
   async store(req, res) {
     try {
-      const novoUsuario = await Usuario.create(req.body);
-      res.status(200).json(novoUsuario);
+      const { nome, email, password } = req.body;
+      if (!nome || !email || !password) {
+        return res
+          .status(400)
+          .json({ message: ['Todos os campos são obrigatórios.'] });
+      }
+
+      const novoUsuario = await Usuario.create({ nome, email, password });
+      return res.status(200).json(novoUsuario);
     } catch (e) {
-      res.status(400).json(e.errors.map((error) => error.message));
+      return res
+        .status(400)
+        .json({ message: e.errors.map((error) => error.message) });
+    }
+  }
+
+  async show(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ message: ['ID inválido.'] });
+      }
+
+      const findOne = await Usuario.findByPk(id);
+
+      if (!findOne) {
+        return res.status(400).json({ message: ['Usuário não existe.'] });
+      }
+
+      return res.status(200).json(findOne);
+    } catch (e) {
+      return res.status(400).json(null);
+    }
+  }
+
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ message: ['ID inválido.'] });
+      }
+
+      const findOne = await Usuario.findByPk(id);
+
+      if (!findOne) {
+        return res.status(400).json({ message: ['Usuário não existe.'] });
+      }
+      await findOne.update(req.body, { where: { id } });
+
+      return res
+        .status(200)
+        .json({ message: ['Usuário editado com sucesso.'] });
+    } catch (e) {
+      return res.status(400).json(null);
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ message: ['ID inválido'] });
+      }
+
+      const findOne = await Usuario.findByPk(id);
+
+      if (!findOne) {
+        return res.status(400).json({ message: ['Usuário não existe.'] });
+      }
+
+      await findOne.destroy();
+      return res
+        .status(200)
+        .json({ message: ['Usuário deletado com sucesso.'] });
+    } catch (e) {
+      return res.status(400).json(e);
     }
   }
 }
