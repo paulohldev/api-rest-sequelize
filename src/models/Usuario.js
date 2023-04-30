@@ -54,4 +54,8 @@ module.exports = class Usuario extends Model {
 
     return this;
   }
+
+  verifyPassword(password) {
+    return bcryptjs.compare(password, this.password_hash);
+  }
 };
