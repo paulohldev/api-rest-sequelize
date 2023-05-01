@@ -4,33 +4,37 @@ const Usuario = require('../models/Usuario');
 class TokenController {
   async store(req, res) {
     try {
-      const { email = '', password = '' } = req.body;
+      const { email, password } = req.body;
 
       if (!email || !password) {
-        return res
-          .status(400)
-          .json({ message: ['Todos os campos são obrigatórios.'] });
+        return res.status(400).json({
+          message: ['Todos os campos são obrigatórios.'],
+        });
       }
 
       const user = await Usuario.findOne({ where: { email } });
 
       if (!user) {
-        return res.status(401).json({ message: ['E-mail não cadastrado.'] });
+        return res.status(400).json({
+          message: ['Usuário não existe.'],
+        });
       }
 
-      if (!(await user.verifyPassword(password))) {
-        return res.status(401).json({ message: ['Senha inválida.'] });
+      if (!(await user.isPasswordValid(password))) {
+        return res.status(401).json({
+          message: ['Credenciais inválidas.'],
+        });
       }
 
       const { id } = user;
 
-      const token = jwt.sign({ id, email }, process.env.TOKEN_SECRET, {
+      const token = await jwt.sign({ id, email }, process.env.TOKEN_SECRET, {
         expiresIn: process.env.TOKEN_EXPIRATION,
       });
 
       return res.status(200).json({ token });
     } catch (e) {
-      return res.status(400).json({ message: ['Teste'] });
+      return res.send(null);
     }
   }
 }

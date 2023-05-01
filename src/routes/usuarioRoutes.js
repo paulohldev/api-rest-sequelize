@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const usuarioController = require('../controllers/UsuarioController');
+const loginRequired = require('../middlewares/loginRequired');
 
-router.get('/', usuarioController.index);
+router.get('/', loginRequired, usuarioController.index);
 router.post('/criar', usuarioController.store);
 router.get('/:id', usuarioController.show);
 router.delete('/:id', usuarioController.delete);
