@@ -4,6 +4,7 @@ require('./database/index');
 
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const tokenRoutes = require('./routes/tokenRoutes');
+const postRoutes = require('./routes/postRoutes');
 
 class App {
   constructor() {
@@ -19,6 +20,7 @@ class App {
 
   routes() {
     this.app.use('/usuario/', usuarioRoutes);
+    this.app.use('/posts/', postRoutes);
     this.app.use('/tokens/', tokenRoutes);
   }
 }

@@ -3,7 +3,9 @@ const Usuario = require('../models/Usuario');
 class UsuarioController {
   async index(req, res) {
     try {
-      const findAll = await Usuario.findAll();
+      const findAll = await Usuario.findAll({
+        attributes: ['id', 'nome', 'email'],
+      });
       res.status(200).json(findAll);
     } catch (e) {
       res.json(e);
@@ -50,22 +52,14 @@ class UsuarioController {
 
   async update(req, res) {
     try {
-      const { id } = req.params;
-
-      if (!id) {
-        return res.status(400).json({ message: ['ID inválido.'] });
-      }
-
-      const findOne = await Usuario.findByPk(id);
+      const findOne = await Usuario.findByPk(req.userId);
 
       if (!findOne) {
         return res.status(400).json({ message: ['Usuário não existe.'] });
       }
-      await findOne.update(req.body, { where: { id } });
-
-      return res
-        .status(200)
-        .json({ message: ['Usuário editado com sucesso.'] });
+      const novosDados = await findOne.update(req.body);
+      const { id, nome, email } = novosDados;
+      return res.status(200).json({ id, nome, email });
     } catch (e) {
       return res.status(400).json(null);
     }
@@ -73,13 +67,7 @@ class UsuarioController {
 
   async delete(req, res) {
     try {
-      const { id } = req.params;
-
-      if (!id) {
-        return res.status(400).json({ message: ['ID inválido'] });
-      }
-
-      const findOne = await Usuario.findByPk(id);
+      const findOne = await Usuario.findByPk(req.userId);
 
       if (!findOne) {
         return res.status(400).json({ message: ['Usuário não existe.'] });
